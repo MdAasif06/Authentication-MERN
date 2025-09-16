@@ -9,10 +9,10 @@ const app=express();
 const port=process.env.PORT || 4000;
 
 
-app.use(express.urlencoded({extends:true}));
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({credentials:true}));
+app.use(express.urlencoded({extends:true}));
 
 app.get('/',(req,res)=>{
     res.send("API working fine")
