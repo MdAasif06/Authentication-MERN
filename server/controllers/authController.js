@@ -1,6 +1,7 @@
 import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import transpoter from "../config/nodeMailer.js";
 
 ///Register user
 export const register = async (req, res) => {
@@ -15,7 +16,7 @@ export const register = async (req, res) => {
   try {
     const userExists = await userModel.findOne({ email });
     if (userExists) {
-      res.json({
+      return res.json({
         success: false,
         message: "user already exits in database",
       });
@@ -37,6 +38,15 @@ export const register = async (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+    //Sending welcome email
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: email,
+      subject: "Welcome to Authentication",
+      text: `Welcome to my Web App , your account has been created with email id:${email}`,
+    };
+    await transpoter.sendMail(mailOptions);
+
     return res.json({
       success: true,
       message: "user register successfully",
@@ -48,7 +58,9 @@ export const register = async (req, res) => {
 
 //login user
 export const login = async (req, res) => {
+  // console.log(req.body)
   const { email, password } = req.body;
+
   if (!email || !password) {
     return res.json({
       success: false,
@@ -80,5 +92,56 @@ export const login = async (req, res) => {
     return res.json({ success: true, message: "user login successfult" });
   } catch (error) {
     return res.json({ success: false, message: error.message });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    });
+    return res.json({
+      success: true,
+      message: "Logged out",
+    });
+  } catch (error) {
+    return res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+//send verification OTP to the uses'email
+export const sendVerifyOtp = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    console.log(req.body);
+    const user = userModel.findOne(userId);
+    // console.log(userId)
+    if (user.isAccountVerified) {
+      return res.json({ success: false, message: "Account already verified" });
+    }
+
+    const OTP = String(Math.floor(100000 + Math.random() * 900000));
+    user.verifyOtp = OTP;
+    user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000;
+    await user.save();
+
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: user.email,
+      subject: "Account verification OTP",
+      text: `Your OTP is:${OTP}. Verify your account using this OTP`,
+    };
+    await transpoter.sendMail(mailOptions);
+    res.json({ success: true, message: "Verification OTP send on Email" });
+  } catch (error) {
+    return res.json({
+      success: false,
+      message: error.message,
+    });
   }
 };

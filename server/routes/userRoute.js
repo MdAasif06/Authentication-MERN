@@ -1,10 +1,12 @@
 import express from 'express';
-import {register,login} from "../controllers/authController.js"
+import {register,login, logout, sendVerifyOtp} from "../controllers/authController.js"
 
-const userRoute=express.Router()
+const authRoute=express.Router()
 
 
-userRoute.post('/register',register)
-userRoute.post('/login',login)
+authRoute.post('/register',register)
+authRoute.post('/login',login)
+authRoute.post('/logout',logout)
+authRoute.post('/verifyOtp',sendVerifyOtp)
 
-export default userRoute;
+export default authRoute;
