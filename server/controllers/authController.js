@@ -117,14 +117,14 @@ export const logout = async (req, res) => {
 //send verification OTP to the uses'email
 export const sendVerifyOtp = async (req, res) => {
   try {
-    const userId  = req.userId;
-    //const userId = req.userId; 
+    const userId = req.userId;
+    //const userId = req.userId;
     // if (userId) {
-      console.log(userId);
+    // console.log(userId);
     //   return res.json({ success: true, userId });
     // }
 
-    const user =await userModel.findById(userId);
+    const user = await userModel.findById(userId);
     // console.log(userId)
     if (user.isAccountVerified) {
       return res.json({ success: false, message: "Account already verified" });
@@ -152,23 +152,27 @@ export const sendVerifyOtp = async (req, res) => {
 };
 ///verify email
 export const verifyEmail = async (req, res) => {
-  const { userId, OTP } = req.body;
-  if (!userId || !OTP) {
+  const { otp } = req.body;
+  const userId = req.userId;
+  console.log(userId, "and", otp);
+  // console.log("Full body:", req.body);
+  // console.log("Full body:", req.userId);
+  if (!userId || !otp) {
     return res.json({ success: false, message: "Missing details" });
   }
   try {
-    const user =await userModel.findById(userId);
+    const user = await userModel.findById(userId);
     if (!user) {
       return res.json({ success: false, message: "User is not found" });
     }
-    if (user.verifyOtp === "" || user.verifyOtp !== OTP) {
+    if (user.verifyOtp === "" || user.verifyOtp !== otp) {
       return res.json({ success: false, message: "Invalid OTP" });
     }
     if (user.verifyOtpExpireAt < Date.now()) {
       return res.json({ success: false, message: "OTP is Expired" });
     }
     user.isAccountVerified = true;
-    user.verifyOtp = '';
+    user.verifyOtp = "";
     user.verifyOtpExpireAt = 0;
     await user.save();
     return res.json({ success: true, message: "Email Veified Successfully" });
