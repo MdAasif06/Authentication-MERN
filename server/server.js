@@ -3,7 +3,8 @@ import cors from "cors"
 import 'dotenv/config'
 import cookieParser from "cookie-parser"
 import connectDb from "./config/mongodb.js"
-import authRoute from "./routes/userRoute.js"
+import authRouter from "./routes/authRoute.js"
+import userRouter from "./routes/userRoute.js"
 connectDb()
 const app=express();
 const port=process.env.PORT || 4000;
@@ -19,7 +20,8 @@ app.get('/',(req,res)=>{
 })
 
 //API End points
-app.use("/api/auth",authRoute)
+app.use("/api/auth",authRouter)
+app.use("/api/user",userRouter)
 
 
 app.listen(port,(req,res)=>{
