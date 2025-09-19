@@ -9,10 +9,11 @@ connectDb()
 const app=express();
 const port=process.env.PORT || 4000;
 
+const allowOrigins=['http://localhost:5173']
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({credentials:true}));
+app.use(cors({origin:allowOrigins,credentials:true}));
 app.use(express.urlencoded({extends:true}));
 
 app.get('/',(req,res)=>{
