@@ -24,7 +24,7 @@ const Login = () => {
         });
         if (data.success) {
           setIsLoggedin(true);
-          getUserData()
+          getUserData();
           navigate("/");
         } else {
           toast.error(data.message);
@@ -36,7 +36,7 @@ const Login = () => {
         });
         if (data.success) {
           setIsLoggedin(true);
-          getUserData()
+          getUserData();
           navigate("/");
         } else {
           toast.error(data.message);
@@ -46,6 +46,7 @@ const Login = () => {
       toast.error(error.message);
     }
   };
+  
   return (
     <div
       className="flex justify-center items-center min-h-screen px-6
